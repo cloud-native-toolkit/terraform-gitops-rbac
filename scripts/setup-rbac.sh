@@ -37,16 +37,6 @@ ${RULES}
 ---
 EOL
 
-#- apiGroups: ["apps"]
-#  resources: ["deployments", "statefulsets"]
-#  verbs: ["*"]
-#- apiGroups: [""]
-#  resources: ["secrets", "configmaps", "serviceaccount", "services"]
-#  verbs: ["*"]
-#- apiGroups: ["route.openshift.io"]
-#  resources: ["routes"]
-#  verbs: ["*"]
-
 apiVersion: apps/v1
 kind: Deployment
 

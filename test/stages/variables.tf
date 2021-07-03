@@ -54,6 +54,10 @@ variable "git_token" {
   description = "Git token"
 }
 
+variable "git_username" {
+  type = string
+}
+
 variable "git_host" {
   type        = string
   default     = "github.com"
