@@ -1,11 +1,118 @@
 id: github.com/cloud-native-toolkit/terraform-gitops-rbac
-name: ""
+name: gitops-rbac
 type: terraform
-description: ""
+description: Module to configure the provisioning of rbac in a namespace in a GitOps repo
 tags:
   - tools
-  - devops
+  - gitops
 versions:
+  - platforms: []
+    dependencies:
+      - id: gitops
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
+            version: ">= 1.1.0"
+      - id: namespace
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
+            version: ">= 1.0.0"
+      - id: argocd
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: ">= 1.0.0"
+          - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
+            version: ">= 1.0.0"
+        optional: true
+    variables:
+      - name: config_repo
+        moduleRef:
+          id: gitops
+          output: config_repo
+        type: string
+        description: The repo that contains the argocd configuration
+      - name: config_token
+        moduleRef:
+          id: gitops
+          output: config_token
+        type: string
+        description: The token for the config repo
+      - name: config_paths
+        moduleRef:
+          id: gitops
+          output: config_paths
+        type: |-
+          object({
+              infrastructure = string
+              services       = string
+              applications   = string
+            })
+        description: The paths in the config repo
+      - name: config_projects
+        moduleRef:
+          id: gitops
+          output: config_projects
+        type: |-
+          object({
+              infrastructure = string
+              services       = string
+              applications   = string
+            })
+        description: The ArgoCD projects in the config repo
+      - name: application_repo
+        moduleRef:
+          id: gitops
+          output: application_repo
+        type: string
+        description: The repo that contains the application configuration
+      - name: application_token
+        moduleRef:
+          id: gitops
+          output: application_token
+        type: string
+        description: The token for the application repo
+      - name: application_paths
+        moduleRef:
+          id: gitops
+          output: application_paths
+        type: |-
+          object({
+              infrastructure = string
+              services       = string
+              applications   = string
+            })
+        description: The paths in the application repo
+      - name: service_account_namespace
+        moduleRef:
+          id: argocd
+          output: argocd_namespace
+        type: string
+        description: The namespace where the service account can be found
+      - name: service_account_name
+        moduleRef:
+          id: argocd
+          output: argocd_service_account
+        type: string
+        description: The name of the service account that will be bound to the role
+      - name: namespace
+        moduleRef:
+          id: namespace
+          output: name
+        type: string
+        description: The namespace where the role should be provisioned
+      - name: label
+        type: string
+        description: The label used in the role and role-binding names
+        default: ""
+        optional: true
+      - name: rules
+        type: |-
+          list(object({
+              apiGroups = list(string)
+              resources = list(string)
+              verbs     = list(string)
+            }))
+        description: The rules that should be created in the role
+    version: v1.0.0
   - platforms:
       - kubernetes
       - ocp3
@@ -27,28 +134,3 @@ versions:
     #          version: ">= 1.6.0"
     variables: []
     version: v0.0.0
-#    - name: cluster_type
-#      moduleRef:
-#        id: cluster
-#        output: type_code
-#    - name: cluster_ingress_hostname
-#      moduleRef:
-#        id: cluster
-#        output: ingress_hostname
-#    - name: cluster_config_file
-#      moduleRef:
-#        id: cluster
-#        output: config_file_path
-#    - name: tls_secret_name
-#      moduleRef:
-#        id: cluster
-#        output: tls_secret_name
-#    - name: releases_namespace
-#      moduleRef:
-#        id: namespace
-#        output: name
-#        discriminator: tools
-#    - name: icon_url
-#      moduleRef:
-#        id: dashboard
-#        output: base_icon_url
