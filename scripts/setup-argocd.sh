@@ -10,7 +10,31 @@ BRANCH="$7"
 
 APPLICATION_REPO_URL="https://${APPLICATION_REPO}"
 
-REPO_DIR=".tmprepo-namespace-${NAMESPACE}"
+REPO_DIR=".tmprepo-rbac-${NAMESPACE}"
+
+SEMAPHORE="${REPO//\//-}.semaphore"
+
+while true; do
+  echo "Checking for semaphore"
+  if [[ ! -f "${SEMAPHORE}" ]]; then
+    echo -n "${REPO_DIR}" > "${SEMAPHORE}"
+
+    if [[ $(cat "${SEMAPHORE}") == "${REPO_DIR}" ]]; then
+      echo "Got the semaphore. Setting up gitops repo"
+      break
+    fi
+  fi
+
+  SLEEP_TIME=$((1 + $RANDOM % 10))
+  echo "  Waiting $SLEEP_TIME seconds for semaphore"
+  sleep $SLEEP_TIME
+done
+
+function finish {
+  rm "${SEMAPHORE}"
+}
+
+trap finish EXIT
 
 git config --global user.email "cloudnativetoolkit@gmail.com"
 git config --global user.name "Cloud-Native Toolkit"
