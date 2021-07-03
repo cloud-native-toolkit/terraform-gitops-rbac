@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
+
 REPO="$1"
 REPO_PATH="$2"
 NAMESPACE="$3"
@@ -17,13 +19,14 @@ echo "Path: ${REPO_PATH}"
 REPO_DIR=".tmprepo-rbac-${NAMESPACE}"
 
 SEMAPHORE="${REPO//\//-}.semaphore"
+SEMAPHORE_ID="${SCRIPT_DIR//\//-}"
 
 while true; do
   echo "Checking for semaphore"
   if [[ ! -f "${SEMAPHORE}" ]]; then
-    echo -n "${REPO_DIR}" > "${SEMAPHORE}"
+    echo -n "${SEMAPHORE_ID}" > "${SEMAPHORE}"
 
-    if [[ $(cat "${SEMAPHORE}") == "${REPO_DIR}" ]]; then
+    if [[ $(cat "${SEMAPHORE}") == "${SEMAPHORE_ID}" ]]; then
       echo "Got the semaphore. Setting up gitops repo"
       break
     fi
