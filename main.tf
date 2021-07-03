@@ -7,7 +7,7 @@ locals {
 
 resource null_resource setup_rbac {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-namespace.sh '${var.application_repo}' '${var.application_paths[local.layer]}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}'"
+    command = "${path.module}/scripts/setup-rbac.sh '${var.application_repo}' '${var.application_paths[local.layer]}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}'"
 
     environment = {
       TOKEN = var.application_token
