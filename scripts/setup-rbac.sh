@@ -8,6 +8,7 @@ NAMESPACE="$3"
 SA_NAME="$4"
 SA_NAMESPACE="$5"
 LABEL="$6"
+CLUSTER_SCOPE="$7"
 
 if [[ -z "${RULES}" ]]; then
   echo "Rules must be provided via the RULES environment variable"
@@ -54,9 +55,15 @@ cd "${REPO_DIR}" || exit 1
 
 mkdir -p "${REPO_PATH}"
 
+if [[ "${CLUSTER_SCOPE}" == "true" ]]; then
+  KIND="ClusterRole"
+else
+  KIND="Role"
+fi
+
 cat > "${REPO_PATH}/${LABEL}-rbac.yaml" <<EOL
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ${KIND}
 metadata:
   name: ${LABEL}
 rules:
@@ -69,12 +76,12 @@ kind: Deployment
 
 cat >> "${REPO_PATH}/${LABEL}-rbac.yaml" <<EOL
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ${KIND}Binding
 metadata:
   name: ${LABEL}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
+  kind: ${KIND}
   name: ${LABEL}
 subjects:
 - kind: ServiceAccount

@@ -59,6 +59,7 @@ variable "service_account_name" {
 variable "namespace" {
   type        = string
   description = "The namespace where the role should be provisioned"
+  default     = ""
 }
 
 variable "label" {
@@ -74,4 +75,9 @@ variable "rules" {
     verbs     = list(string)
   }))
   description = "The rules that should be created in the role"
+}
+
+variable "cluster_scope" {
+  type        = bool
+  description = "Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)"
 }

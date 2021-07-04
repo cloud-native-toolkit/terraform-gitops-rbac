@@ -4,11 +4,12 @@ locals {
   application_branch = "main"
   label = var.label != null && var.label != "" ? var.label : "${var.namespace}-rbac"
   application_repo_path = "${var.application_paths[local.layer]}/namespace/${var.namespace}"
+  namespace = var.cluster_scope ? "default" : var.namespace
 }
 
 resource null_resource setup_rbac {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-rbac.sh '${var.application_repo}' '${local.application_repo_path}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}'"
+    command = "${path.module}/scripts/setup-rbac.sh '${var.application_repo}' '${local.application_repo_path}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}' '${var.cluster_scope}'"
 
     environment = {
       TOKEN = var.application_token
