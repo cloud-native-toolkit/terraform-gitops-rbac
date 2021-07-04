@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
+
 REPO="$1"
 REPO_PATH="$2"
 PROJECT="$3"
@@ -13,13 +15,14 @@ APPLICATION_REPO_URL="https://${APPLICATION_REPO}"
 REPO_DIR=".tmprepo-rbac-${NAMESPACE}"
 
 SEMAPHORE="${REPO//\//-}.semaphore"
+SEMAPHORE_ID="${SCRIPT_DIR//\//-}"
 
 while true; do
   echo "Checking for semaphore"
   if [[ ! -f "${SEMAPHORE}" ]]; then
-    echo -n "${REPO_DIR}" > "${SEMAPHORE}"
+    echo -n "${SEMAPHORE_ID}" > "${SEMAPHORE}"
 
-    if [[ $(cat "${SEMAPHORE}") == "${REPO_DIR}" ]]; then
+    if [[ $(cat "${SEMAPHORE}") == "${SEMAPHORE_ID}" ]]; then
       echo "Got the semaphore. Setting up gitops repo"
       break
     fi
@@ -45,11 +48,11 @@ git clone "https://${TOKEN}@${REPO}" "${REPO_DIR}"
 
 cd "${REPO_DIR}" || exit 1
 
-cat > "${REPO_PATH}/rbac-${NAMESPACE}.yaml" <<EOL
+cat > "${REPO_PATH}/namespace-${NAMESPACE}.yaml" <<EOL
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: rbac-${NAMESPACE}-${BRANCH}
+  name: namespace-${NAMESPACE}-${BRANCH}
 spec:
   destination:
     namespace: ${NAMESPACE}
