@@ -52,9 +52,10 @@ git clone "https://${TOKEN}@${REPO}" "${REPO_DIR}"
 
 cd "${REPO_DIR}" || exit 1
 
-mkdir -p "${REPO_PATH}/rbac/${NAMESPACE}"
+NAMESPACE_PATH="${REPO_PATH}/namespace/${NAMESPACE}"
+mkdir -p "${NAMESPACE_PATH}"
 
-cat > "${REPO_PATH}/rbac/${NAMESPACE}/${LABEL}-rbac.yaml" <<EOL
+cat > "${NAMESPACE_PATH}/${LABEL}-rbac.yaml" <<EOL
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -67,7 +68,7 @@ EOL
 apiVersion: apps/v1
 kind: Deployment
 
-cat >> "${REPO_PATH}/rbac/${NAMESPACE}/${LABEL}-rbac.yaml" <<EOL
+cat >> "${NAMESPACE_PATH}/${LABEL}-rbac.yaml" <<EOL
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
