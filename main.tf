@@ -3,11 +3,12 @@ locals {
   config_project = var.config_projects[local.layer]
   application_branch = "main"
   label = var.label != null && var.label != "" ? var.label : "${var.namespace}-rbac"
+  application_repo_path = "${var.application_paths[local.layer]}/namespace/${var.namespace}"
 }
 
 resource null_resource setup_rbac {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-rbac.sh '${var.application_repo}' '${var.application_paths[local.layer]}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}'"
+    command = "${path.module}/scripts/setup-rbac.sh '${var.application_repo}' '${local.application_repo_path}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}'"
 
     environment = {
       TOKEN = var.application_token
@@ -19,7 +20,7 @@ resource null_resource setup_rbac {
 resource null_resource setup_argocd {
   depends_on = [null_resource.setup_rbac]
   provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-argocd.sh '${var.config_repo}' '${var.config_paths[local.layer]}' '${local.config_project}' '${var.application_repo}' '${var.application_paths[local.layer]}/rbac/${var.namespace}' '${var.namespace}' '${local.application_branch}'"
+    command = "${path.module}/scripts/setup-argocd.sh '${var.config_repo}' '${var.config_paths[local.layer]}' '${local.config_project}' '${var.application_repo}' '${local.application_repo_path}' '${var.namespace}' '${local.application_branch}'"
 
     environment = {
       TOKEN = var.config_token
