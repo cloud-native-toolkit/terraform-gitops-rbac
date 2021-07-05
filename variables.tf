@@ -80,4 +80,5 @@ variable "rules" {
 variable "cluster_scope" {
   type        = bool
   description = "Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)"
+  default     = false
 }
