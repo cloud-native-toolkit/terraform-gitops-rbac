@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "namespace: ${TF_VAR_namespace}"
+
 GIT_REPO=$(cat git_repo)
 GIT_TOKEN=$(cat git_token)
 
@@ -9,7 +11,7 @@ git clone https://${GIT_TOKEN}@${GIT_REPO} .testrepo
 
 cd .testrepo || exit 1
 
-ls -l
+find . -name "*"
 
 cd ..
 rm -rf .testrepo
