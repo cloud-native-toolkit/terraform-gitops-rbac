@@ -5,7 +5,7 @@ module "gitops_rbac" {
   git_credentials = module.gitops.git_credentials
   service_account_namespace = "openshift-gitops"
   service_account_name      = "argocd-cluster-argocd-application-controller"
-  namespace = module.gitops_namespace.name
+  namespace = var.namespace
   rules = [{
     apiGroups = ["*"]
     resources = ["*"]
