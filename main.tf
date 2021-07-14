@@ -5,7 +5,7 @@ locals {
   label = var.label != null && var.label != "" ? var.label : "${var.namespace}-rbac"
   namespace = var.cluster_scope ? "default" : var.namespace
   yaml_dir = "${path.cwd}/.tmp/rbac-${local.label}"
-  provision = length(var.rules) == 0
+  provision = length(var.rules) > 0
 }
 
 resource null_resource setup_yaml {
