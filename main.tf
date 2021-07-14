@@ -5,9 +5,12 @@ locals {
   label = var.label != null && var.label != "" ? var.label : "${var.namespace}-rbac"
   namespace = var.cluster_scope ? "default" : var.namespace
   yaml_dir = "${path.cwd}/.tmp/rbac-${local.label}"
+  provision = length(var.rules) > 0
 }
 
 resource null_resource setup_yaml {
+  count = local.provision ? 1 : 0
+
   provisioner "local-exec" {
     command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}' '${var.cluster_scope}'"
 
@@ -18,6 +21,7 @@ resource null_resource setup_yaml {
 }
 
 resource null_resource setup_gitops {
+  count = local.provision ? 1 : 0
   depends_on = [null_resource.setup_yaml]
 
   provisioner "local-exec" {
