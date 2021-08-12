@@ -98,3 +98,9 @@ variable "cluster_scope" {
   description = "Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)"
   default     = false
 }
+
+variable "serverName" {
+  type        = string
+  description = "The cluster where the application will be provisioned"
+  default     = "default"
+}
