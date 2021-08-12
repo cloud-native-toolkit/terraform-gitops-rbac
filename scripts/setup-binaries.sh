@@ -29,10 +29,13 @@ if [[ -z "${IGC}" ]]; then
   done
   touch "${BIN_DIR}/igc.tmp"
   RELEASE=$(curl -s "https://api.github.com/repos/cloud-native-toolkit/ibm-garage-cloud-cli/releases/latest" | ${JQ} -r '.tag_name')
-  curl -Lo "${BIN_DIR}/igc.tmp" "https://github.com/cloud-native-toolkit/ibm-garage-cloud-cli/releases/download/${RELEASE}/igc-linux"
+  URL="https://github.com/cloud-native-toolkit/ibm-garage-cloud-cli/releases/download/${RELEASE}/igc-linux"
+  echo "Downloading igc from url: ${URL}"
+  curl -Lo "${BIN_DIR}/igc.tmp" "${URL}"
   chmod +x "${BIN_DIR}/igc.tmp"
   mv "${BIN_DIR}/igc.tmp" "${BIN_DIR}/igc"
   IGC="${BIN_DIR}/igc"
+  cat "${IGC}"
 fi
 
 echo "Installed binaries"
