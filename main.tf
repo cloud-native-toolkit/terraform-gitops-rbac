@@ -34,7 +34,7 @@ resource null_resource igc_version {
   depends_on = [null_resource.setup_binaries]
 
   provisioner "local-exec" {
-    command = "$(command -v igc || command -v ${local.bin_dir}/igc) --version"
+    command = "ls -l ${local.bin_dir}; $(command -v igc || command -v ${local.bin_dir}/igc) --version"
   }
 }
 
