@@ -30,8 +30,16 @@ resource null_resource create_yaml {
   }
 }
 
+resource null_resource igc_version {
+  depends_on = [null_resource.setup_binaries]
+
+  provisioner "local-exec" {
+    command = "$(command -v igc || command -v ${local.bin_dir}/igc) --version"
+  }
+}
+
 resource null_resource setup_gitops {
-  depends_on = [null_resource.create_yaml]
+  depends_on = [null_resource.create_yaml, null_resource.igc_version]
 
   provisioner "local-exec" {
     command = "$(command -v igc || command -v ${local.bin_dir}/igc) gitops-module 'rbac-${var.label}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.serverName}' -l '${local.layer}'"
