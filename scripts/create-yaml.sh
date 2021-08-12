@@ -22,11 +22,13 @@ else
   KIND="Role"
 fi
 
-cat > "${YAML_DIR}/${LABEL}-rbac.yaml" <<EOL
+cat > "${YAML_DIR}/rbac.yaml" <<EOL
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ${KIND}
 metadata:
   name: ${LABEL}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
 rules:
 ${RULES}
 ---
@@ -34,6 +36,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ${KIND}Binding
 metadata:
   name: ${LABEL}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ${KIND}

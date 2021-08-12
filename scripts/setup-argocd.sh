@@ -20,11 +20,18 @@ git clone "https://${TOKEN}@${REPO}" "${REPO_DIR}"
 
 cd "${REPO_DIR}" || exit 1
 
-cat > "${REPO_PATH}/${NAME}.yaml" <<EOL
+BRANCH_PREFIX=""
+if [[ "${BRANCH}" != "main" ]] && [[ "${BRANCH}" != "master"]]; then
+  BRANCH_PREFIX="${BRANCH}-"
+fi
+
+mkdir -p "${REPO_PATH}/base"
+
+cat > "${REPO_PATH}/base/${NAME}.yaml" <<EOL
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${NAME}-${BRANCH}
+  name: ${BRANCH_PREFIX}${NAME}
 spec:
   destination:
     namespace: ${NAMESPACE}
@@ -39,6 +46,13 @@ spec:
       prune: true
       selfHeal: true
 EOL
+
+if ! cat "${REPO_PATH}/kustomization.yaml" | grep -q "base/${NAME}.yaml"; then
+  cat "${REPO_PATH}/kustomization.yaml" | \
+    RESOURCE="base/${NAME}.yaml" ${YQ} eval '.resources += [env(myenv)]' - > "${REPO_PATH}/kustomization.yaml.tmp" && \
+    cp "${REPO_PATH}/kustomization.yaml.tmp" "${REPO_PATH}/kustomization.yaml" && \
+    rm "${REPO_PATH}/kustomization.yaml.tmp"
+fi
 
 if [[ $(git status --porcelain | wc -l) -gt 0 ]]; then
   git add .

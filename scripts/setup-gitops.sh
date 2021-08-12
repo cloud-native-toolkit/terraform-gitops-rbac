@@ -7,15 +7,7 @@ CONTENT_DIR="$2"
 APPLICATION_PATH="$3"
 APPLICATION_BRANCH="$4"
 NAMESPACE="$5"
-
-# Install jq if not available
-JQ=$(command -v jq || command -v ./bin/jq)
-
-if [[ -z "${JQ}" ]]; then
-  echo "jq missing. Installing"
-  mkdir -p ./bin && curl -Lo ./bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-  JQ="${PWD}/bin/jq"
-fi
+SERVER_NAME="$6"
 
 SEMAPHORE="${REPO//\//-}.semaphore"
 SEMAPHORE_ID="${SCRIPT_DIR//\//-}"
@@ -42,6 +34,15 @@ function finish {
 
 trap finish EXIT
 
+# Install jq if not available
+JQ=$(command -v jq || command -v ./bin/jq)
+
+if [[ -z "${JQ}" ]]; then
+  echo "jq missing. Installing"
+  mkdir -p ./bin && curl -Lo ./bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+  JQ="${PWD}/bin/jq"
+fi
+
 PAYLOAD_REPO=$(echo "${GITOPS_CONFIG}" | ${JQ} -r '.payload.repo')
 
 PAYLOAD_BASE_PATH=$(echo "${GITOPS_CONFIG}" | ${JQ} -r '.payload.path')
@@ -59,4 +60,4 @@ echo "Setting up payload gitops"
 TOKEN="${PAYLOAD_TOKEN}" "${SCRIPT_DIR}/setup-payload.sh" "${NAME}" "${PAYLOAD_REPO}" "${PAYLOAD_PATH}" "${NAMESPACE}" "${CONTENT_DIR}"
 
 echo "Setting up argocd config"
-TOKEN="${CONFIG_TOKEN}" "${SCRIPT_DIR}/setup-argocd.sh" "${NAME}" "${CONFIG_REPO}" "${CONFIG_PATH}" "${CONFIG_PROJECT}" "${PAYLOAD_REPO}" "${PAYLOAD_PATH}" "${NAMESPACE}" "${APPLICATION_BRANCH}"
+TOKEN="${CONFIG_TOKEN}" "${SCRIPT_DIR}/setup-argocd.sh" "${NAME}" "${CONFIG_REPO}" "${CONFIG_PATH}/cluster/${SERVER_NAME}" "${CONFIG_PROJECT}" "${PAYLOAD_REPO}" "${PAYLOAD_PATH}" "${NAMESPACE}" "${APPLICATION_BRANCH}"
