@@ -21,7 +21,7 @@ git clone "https://${TOKEN}@${REPO}" "${REPO_DIR}"
 cd "${REPO_DIR}" || exit 1
 
 BRANCH_PREFIX=""
-if [[ "${BRANCH}" != "main" ]] && [[ "${BRANCH}" != "master"]]; then
+if [[ "${BRANCH}" != "main" ]] && [[ "${BRANCH}" != "master" ]]; then
   BRANCH_PREFIX="${BRANCH}-"
 fi
 
