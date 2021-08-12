@@ -34,3 +34,6 @@ if [[ -z "${IGC}" ]]; then
   mv "${BIN_DIR}/igc.tmp" "${BIN_DIR}/igc"
   IGC="${BIN_DIR}/igc"
 fi
+
+echo "Installed binaries"
+ls "${BIN_DIR}"
