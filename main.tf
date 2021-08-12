@@ -34,7 +34,7 @@ resource null_resource setup_gitops {
   depends_on = [null_resource.create_yaml]
 
   provisioner "local-exec" {
-    command = "PATH=${local.bin_dir}:$${PATH} igc gitops-module 'rbac-${var.label}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.serverName}' -l '${local.layer}'"
+    command = "$(command -v igc || command -v ${local.bin_dir}/igc) gitops-module 'rbac-${var.label}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.serverName}' -l '${local.layer}'"
 
     environment = {
       GIT_CREDENTIALS = yamlencode(var.git_credentials)
