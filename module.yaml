@@ -31,6 +31,10 @@ versions:
         moduleRef:
           id: gitops
           output: git_credentials
+      - name: server_name
+        moduleRef:
+          id: gitops
+          output: server_name
       - name: service_account_namespace
         moduleRef:
           id: argocd
