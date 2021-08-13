@@ -12,7 +12,8 @@ cd .testrepo || exit 1
 find . -name "*"
 
 NAMESPACE="gitops-rbac"
-NAME="rbac-${NAMESPACE}-rbac"
+SERVICE_ACCOUNT="argocd-cluster-argocd-application-controller"
+NAME="${SERVICE_ACCOUNT}-rbac"
 SERVER_NAME="default"
 
 if [[ ! -f "payload/1-infrastructure/namespace/${NAMESPACE}/${NAME}/rbac.yaml" ]]; then

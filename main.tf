@@ -1,9 +1,9 @@
 locals {
   bin_dir = "${path.cwd}/bin"
   layer = "infrastructure"
-  label = var.label != null && var.label != "" ? var.label : "${var.namespace}-rbac"
+  label = var.label != null && var.label != "" ? var.label : var.service_account_name
   namespace = var.cluster_scope ? "default" : var.namespace
-  name = "rbac-${local.label}"
+  name = "${local.label}-rbac"
   yaml_dir = "${path.cwd}/.tmp/rbac-${local.label}"
   provision = length(var.rules) > 0
 }
@@ -43,7 +43,7 @@ resource null_resource setup_gitops {
   depends_on = [null_resource.create_yaml, null_resource.igc_version]
 
   provisioner "local-exec" {
-    command = "$(command -v igc || command -v ${local.bin_dir}/igc) gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.serverName}' -l '${local.layer}'"
+    command = "$(command -v igc || command -v ${local.bin_dir}/igc) gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
 
     environment = {
       GIT_CREDENTIALS = yamlencode(var.git_credentials)

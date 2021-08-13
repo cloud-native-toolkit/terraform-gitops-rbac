@@ -11,4 +11,5 @@ module "gitops_rbac" {
     resources = ["*"]
     verbs = ["*"]
   }]
+  server_name = module.gitops.server_name
 }
