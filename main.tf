@@ -1,7 +1,7 @@
 locals {
   bin_dir = "${path.cwd}/bin"
   layer = "infrastructure"
-  label = var.label != null && var.label != "" ? var.label : "${var.service_account_namespace}-${var.service_account_name}"
+  label = var.label != null && var.label != "" ? var.label : var.service_account_name
   namespace = var.cluster_scope ? "default" : var.namespace
   name = "${local.label}-rbac"
   yaml_dir = "${path.cwd}/.tmp/rbac-${local.label}"
