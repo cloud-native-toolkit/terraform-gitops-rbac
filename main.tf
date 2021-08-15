@@ -1,5 +1,5 @@
 locals {
-  bin_dir = "${path.cwd}/bin"
+  bin_dir  = module.setup_clis.bin_dir
   layer = "infrastructure"
   label = var.label != null && var.label != "" ? var.label : var.service_account_name
   namespace = var.cluster_scope ? "default" : var.namespace
@@ -8,19 +8,12 @@ locals {
   provision = length(var.rules) > 0
 }
 
-resource null_resource setup_binaries {
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-binaries.sh"
-
-    environment = {
-      BIN_DIR = local.bin_dir
-    }
-  }
+module setup_clis {
+  source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
 }
 
 resource null_resource create_yaml {
   count = local.provision ? 1 : 0
-  depends_on = [null_resource.setup_binaries]
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}' '${var.cluster_scope}'"
@@ -31,19 +24,11 @@ resource null_resource create_yaml {
   }
 }
 
-resource null_resource igc_version {
-  depends_on = [null_resource.setup_binaries]
-
-  provisioner "local-exec" {
-    command = "ls -l ${local.bin_dir}; $(command -v igc || command -v ${local.bin_dir}/igc) --version"
-  }
-}
-
 resource null_resource setup_gitops {
-  depends_on = [null_resource.create_yaml, null_resource.igc_version]
+  depends_on = [null_resource.create_yaml]
 
   provisioner "local-exec" {
-    command = "$(command -v igc || command -v ${local.bin_dir}/igc) gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
+    command = "${local.bin_dir}/igc gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
 
     environment = {
       GIT_CREDENTIALS = yamlencode(var.git_credentials)
