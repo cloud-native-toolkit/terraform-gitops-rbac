@@ -12,6 +12,12 @@ module setup_clis {
   source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
 }
 
+resource null_resource print_rules_length {
+  provisioner "local-exec" {
+    command = "echo 'Rule count: ${length(var.rules)}'"
+  }
+}
+
 resource null_resource create_yaml {
   count = local.provision ? 1 : 0
 
@@ -26,6 +32,7 @@ resource null_resource create_yaml {
 
 resource null_resource setup_gitops {
   depends_on = [null_resource.create_yaml]
+  count = local.provision ? 1 : 0
 
   provisioner "local-exec" {
     command = "${local.bin_dir}/igc gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
