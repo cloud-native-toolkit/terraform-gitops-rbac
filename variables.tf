@@ -88,6 +88,7 @@ variable "rules" {
   type        = list(object({
     apiGroups = list(string)
     resources = list(string)
+    resourceNames = optional(list(string))
     verbs     = list(string)
   }))
   description = "The rules that should be created in the role"

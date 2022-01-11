@@ -10,6 +10,11 @@ module "gitops_rbac" {
     apiGroups = ["*"]
     resources = ["*"]
     verbs = ["*"]
+  , {
+    apiGroups = ["security.openshift.io"]
+    resources = ["securitycontextconstraints"]
+    resourceNames = ["turbonomic-t8c-operator-anyuid"]
+    verbs = ["use"]
   }]
   server_name = module.gitops.server_name
 }
