@@ -11,17 +11,153 @@ versions:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
+        optional: true
+    variables:
+      - name: gitops_config
+        type: |-
+          object({
+              boostrap = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              infrastructure = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              services = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              applications = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+            })
+        description: Config information regarding the gitops repo structure
+        moduleRef:
+          id: gitops
+          output: gitops_config
+      - name: git_credentials
+        type: |-
+          list(object({
+              repo = string
+              url = string
+              username = string
+              token = string
+            }))
+        description: The credentials for the gitops repo(s)
+        moduleRef:
+          id: gitops
+          output: git_credentials
+      - name: service_account_namespace
+        description: The namespace where the service account can be found
+        type: string
+        moduleRef:
+          id: argocd
+          output: argocd_namespace
+      - name: service_account_name
+        description: The name of the service account that will be bound to the role
+        type: string
+        moduleRef:
+          id: argocd
+          output: argocd_service_account
+      - name: namespace
+        type: string
+        description: The namespace where the role should be provisioned
+        default: ''
+        moduleRef:
+          id: namespace
+          output: name
+      - name: label
+        type: string
+        description: The label used in the role and role-binding names
+        default: ''
+      - name: rules
+        type: |-
+          list(object({
+              apiGroups = list(string)
+              resources = list(string)
+              resourceNames = optional(list(string))
+              verbs     = list(string)
+            }))
+        description: The rules that should be created in the role
+      - name: cluster_scope
+        type: bool
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
+        default: false
+      - name: server_name
+        type: string
+        description: The cluster where the application will be provisioned
+        default: default
+        moduleRef:
+          id: gitops
+          output: server_name
+    version: v1.7.1
+    outputs:
+      - name: service_account_name
+      - name: service_account_namespace
+  - platforms: []
+    dependencies:
+      - id: gitops
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
+            version: '>= 1.1.0'
+      - id: namespace
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
+            version: '>= 1.0.0'
+      - id: argocd
+        refs:
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
+          - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -117,12 +253,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -135,31 +271,39 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.7.0
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -255,12 +399,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -272,31 +416,39 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.6.3
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -392,12 +544,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -409,31 +561,39 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.6.2
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -529,12 +689,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -546,31 +706,39 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.6.1
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -666,12 +834,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -683,31 +851,39 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.6.0
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -795,12 +971,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -812,7 +988,9 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
       - name: serverName
@@ -823,25 +1001,31 @@ versions:
     version: v1.5.1
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -929,12 +1113,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -946,7 +1130,9 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
       - name: serverName
@@ -957,25 +1143,31 @@ versions:
     version: v1.5.0
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: gitops_config
@@ -1063,12 +1255,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -1080,31 +1272,39 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.4.0
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_gitops] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: config_repo
@@ -1182,12 +1382,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -1199,31 +1399,39 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.3.0
     outputs:
       - name: service_account_name
-        description: output "service_account_name" {   value = var.service_account_name   depends_on = [null_resource.setup_argocd, null_resource.setup_rbac] }
+        description: >-
+          output "service_account_name" {   value = var.service_account_name  
+          depends_on = [null_resource.setup_argocd, null_resource.setup_rbac] }
       - name: service_account_namespace
-        description: output "service_account_namespace" {   value = var.service_account_namespace   depends_on = [null_resource.setup_argocd, null_resource.setup_rbac] }
+        description: >-
+          output "service_account_namespace" {   value =
+          var.service_account_namespace   depends_on =
+          [null_resource.setup_argocd, null_resource.setup_rbac] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: config_repo
@@ -1301,12 +1509,12 @@ versions:
           output: name
         type: string
         description: The namespace where the role should be provisioned
-        default: ""
+        default: ''
         optional: true
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -1318,7 +1526,9 @@ versions:
         description: The rules that should be created in the role
       - name: cluster_scope
         type: bool
-        description: Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)
+        description: >-
+          Flag indicating that cluster scope RBAC should be created (ClusterRole
+          and ClusterRoleBinding)
         default: false
         optional: true
     version: v1.2.0
@@ -1327,17 +1537,18 @@ versions:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: config_repo
@@ -1418,7 +1629,7 @@ versions:
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -1434,17 +1645,18 @@ versions:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: config_repo
@@ -1525,7 +1737,7 @@ versions:
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -1541,17 +1753,18 @@ versions:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
       - id: argocd
         refs:
-          - source: github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
-            version: ">= 1.0.0"
+          - source: >-
+              github.com/cloud-native-toolkit/terraform-tools-openshift-gitops.git
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-tools-argocd.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
         optional: true
     variables:
       - name: config_repo
@@ -1632,7 +1845,7 @@ versions:
       - name: label
         type: string
         description: The label used in the role and role-binding names
-        default: ""
+        default: ''
         optional: true
       - name: rules
         type: |-
@@ -1648,19 +1861,5 @@ versions:
       - ocp3
       - ocp4
     dependencies: []
-    #    - id: cluster
-    #      refs:
-    #        - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-    #          version: ">= 1.7.0"
-    #        - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-    #          version: ">= 2.0.0"
-    #    - id: namespace
-    #      refs:
-    #        - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-    #          version: ">= 2.1.0"
-    #    - id: dashboard
-    #      refs:
-    #        - source: github.com/ibm-garage-cloud/terraform-k8s-dashboard
-    #          version: ">= 1.6.0"
     variables: []
     version: v0.0.0
