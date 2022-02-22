@@ -13,8 +13,8 @@ if [[ -z "${ROLES}" ]]; then
   ROLES = '[]'
 fi
 
-if [[ -z "${RULES}" ]] || [[ $(echo "${ROLES}" | ${BIN_DIR}/jq '. | length') -eq 0 ]]; then
-  echo "Rules must be provided via the RULES environment variable"
+if [[ -z "${RULES}" ]] && [[ $(echo "${ROLES}" | ${BIN_DIR}/jq '. | length') -eq 0 ]]; then
+  echo "Rules must be provided via the RULES environment variable or roles must be provided via the ROLES environment variable"
   exit 1
 fi
 
