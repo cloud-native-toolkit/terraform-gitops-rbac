@@ -9,10 +9,15 @@ SA_NAMESPACE="$4"
 LABEL="$5"
 CLUSTER_SCOPE="$6"
 
-if [[ -z "${RULES}" ]]; then
+if [[ -z "${ROLES}" ]]; then
+  ROLES = '[]'
+fi
+
+if [[ -z "${RULES}" ]] || [[ $(echo "${ROLES}" | ${BIN_DIR}/jq '. | length') -eq 0 ]]; then
   echo "Rules must be provided via the RULES environment variable"
   exit 1
 fi
+
 
 mkdir -p "${YAML_DIR}"
 
@@ -22,6 +27,7 @@ else
   KIND="Role"
 fi
 
+if [[ -n "${RULES}" ]]; then
 cat > "${YAML_DIR}/rbac.yaml" <<EOL
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ${KIND}
@@ -48,3 +54,28 @@ subjects:
   namespace: ${SA_NAMESPACE}
 ---
 EOL
+fi
+
+echo "${ROLES}" | ${BIN_DIR}/jq -c '.[]' | while read role; do
+  name=$(echo "${role}" | ${BIN_DIR}/jq -r '.name')
+
+  kind="ClusterRole"
+
+  cat >> "${YAML_DIR}/rbac.yaml" <<EOL
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ${KIND}Binding
+metadata:
+  name: ${LABEL}-${name}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ${kind}
+  name: ${name}
+subjects:
+- kind: ServiceAccount
+  name: ${SA_NAME}
+  namespace: ${SA_NAMESPACE}
+---
+EOL
+done

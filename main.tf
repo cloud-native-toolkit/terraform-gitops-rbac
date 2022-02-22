@@ -10,6 +10,8 @@ locals {
 
 module setup_clis {
   source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
+
+  clis = ["jq", "yq"]
 }
 
 resource null_resource print_rules_length {
@@ -25,7 +27,9 @@ resource null_resource create_yaml {
     command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.namespace}' '${var.service_account_name}' '${var.service_account_namespace}' '${local.label}' '${var.cluster_scope}'"
 
     environment = {
+      BIN_DIR = module.setup_clis.bin_dir
       RULES = yamlencode(var.rules)
+      ROLES = jsonencode(var.roles)
     }
   }
 }
