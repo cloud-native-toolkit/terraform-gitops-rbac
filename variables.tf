@@ -94,6 +94,14 @@ variable "rules" {
   description = "The rules that should be created in the role"
 }
 
+variable "roles" {
+  type        = list(object({
+    name      = string
+  }))
+  description = "List of existing roles or cluster roles for which a role binding should be created to this service account "
+  default     = []
+}
+
 variable "cluster_scope" {
   type        = bool
   description = "Flag indicating that cluster scope RBAC should be created (ClusterRole and ClusterRoleBinding)"

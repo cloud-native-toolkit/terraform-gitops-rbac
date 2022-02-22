@@ -16,5 +16,6 @@ module "gitops_rbac" {
     resourceNames = ["turbonomic-t8c-operator-anyuid"]
     verbs = ["use"]
   }]
+  roles = [{name = "edit"}]
   server_name = module.gitops.server_name
 }
