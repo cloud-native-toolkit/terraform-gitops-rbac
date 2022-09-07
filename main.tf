@@ -11,7 +11,7 @@ locals {
 module setup_clis {
   source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
 
-  clis = ["jq", "yq"]
+  clis = ["jq", "yq", "igc"]
 }
 
 resource null_resource print_rules_length {
