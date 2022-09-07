@@ -78,3 +78,23 @@ variable "git_repo" {
 variable "gitops_namespace" {
   default = "openshift-gitops"
 }
+
+variable cluster_username {
+  type        = string
+  description = "The username for AWS access"
+}
+
+variable "cluster_password" {
+  type        = string
+  description = "The password for AWS access"
+}
+
+variable "server_url" {
+  type        = string
+}
+
+variable "cluster_ca_cert" {
+  type        = string
+  description = "The certificate authority for the cluster"
+  default     = ""
+}
