@@ -1,15 +1,16 @@
 module "dev_cluster" {
-  source = "github.com/cloud-native-toolkit/terraform-ocp-login.git"
+  source = "github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc.git"
 
-  server_url = var.server_url
-  login_user = var.cluster_username
-  login_password = var.cluster_password
-  ca_cert = var.cluster_ca_cert
-  login_token = ""
-}
-
-resource null_resource output_kubeconfig {
-  provisioner "local-exec" {
-    command = "echo '${module.dev_cluster.platform.kubeconfig}' > .kubeconfig"
-  }
+  resource_group_name = var.resource_group_name
+  region              = var.region
+  ibmcloud_api_key    = var.ibmcloud_api_key
+  name                = var.cluster_name
+  worker_count        = 2
+  name_prefix         = var.name_prefix
+  exists              = true
+  cos_id              = ""
+  vpc_subnet_count    = 1
+  vpc_name            = ""
+  vpc_subnets         = []
+  login               = false
 }
