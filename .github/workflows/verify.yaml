@@ -88,6 +88,13 @@ jobs:
           strict: true
           validate: true
 
+  verifyAll:
+    needs: [verify,verifyMetadata]
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo "Success"
+
   release:
     needs: [verify, verifyMetadata]
     runs-on: ubuntu-latest
